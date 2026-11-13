@@ -68,7 +68,7 @@ jobs:
 
       - name: Build GPL version
         run: |
-          make build enable-gpl version=${{ env.RELEASE_VERSION }} platform=maccatalyst,xros,ios,macos
+          make build enable-gpl version=${{ env.RELEASE_VERSION }} platform=ios
 
           cd ./dist/release
           for name in Libmpv Libavcodec Libavdevice Libavformat Libavfilter Libavutil Libswresample Libswscale; do
