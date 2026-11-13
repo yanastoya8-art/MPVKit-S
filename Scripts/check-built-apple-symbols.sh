@@ -2,8 +2,8 @@
 
 set -euo pipefail
 
-repository_root="$(cd "$(dirname "\${BASH_SOURCE[0]}")/.." && pwd)"
-artifact="\${1:-$repository_root/dist/release/xcframework/Libmpv.xcframework}"
+repository_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+artifact="${1:-$repository_root/dist/release/xcframework/Libmpv.xcframework}"
 temporary_root=""
 
 if [[ "$artifact" == "$repository_root/dist/release/xcframework/Libmpv.xcframework" ]]; then
@@ -34,7 +34,7 @@ cleanup() {
 trap cleanup EXIT
 
 if [[ -f "$artifact" && "$artifact" == *.zip ]]; then
-    temporary_root="$(mktemp -d "\${TMPDIR:-/tmp}/mpvkit-built-symbols.XXXXXX")"
+    temporary_root="$(mktemp -d "${TMPDIR:-/tmp}/mpvkit-built-symbols.XXXXXX")"
     /usr/bin/unzip -q "$artifact" -d "$temporary_root"
     artifact="$(find "$temporary_root" -maxdepth 2 -type d -name 'Libmpv.xcframework' -print -quit)"
 fi
@@ -70,7 +70,7 @@ while IFS= read -r binary; do
         echo "Missing synchronized AVFoundation audio recovery in iOS slice: $binary" >&2
         exit 1
     fi
-    for symbol in "\${pip_symbols[@]}"; do
+    for symbol in "${pip_symbols[@]}"; do
         if ! grep -q " _$symbol$" <<<"$exported"; then
             echo "Missing $symbol in built slice: $binary" >&2
             exit 1
