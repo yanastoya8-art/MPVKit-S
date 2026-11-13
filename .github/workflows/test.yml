@@ -60,11 +60,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          brew install autoconf
-          brew install automake
-          brew install libtool
+          brew install autoconf automake cmake libtool nasm ninja pkg-config
           python -m pip install meson==1.4.2
-          brew install ninja
 
       - name: Build GPL version
         run: |
