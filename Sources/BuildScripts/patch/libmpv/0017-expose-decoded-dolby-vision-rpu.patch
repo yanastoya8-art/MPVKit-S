@@ -13,7 +13,7 @@ diff --git a/video/mp_image.h b/video/mp_image.h
 diff --git a/video/mp_image.c b/video/mp_image.c
 --- a/video/mp_image.c
 +++ b/video/mp_image.c
-@@ -866,6 +866,7 @@ bool mp_image_params_equal(const struct mp_image_params *p1,
+@@ -866,5 +866,6 @@ bool mp_image_params_equal(const struct mp_image_params *p1,
             p1->p_w == p2->p_w && p1->p_h == p2->p_h &&
             p1->force_window == p2->force_window &&
 +           p1->dovi_metadata == p2->dovi_metadata &&
@@ -36,7 +36,7 @@ diff --git a/video/mp_image.c b/video/mp_image.c
      dst->repr.dovi = src->repr.dovi;
      // Don't overwrite peak-detected HDR metadata if available.
      float max_pq_y = dst->color.hdr.max_pq_y;
-@@ -1179,6 +1182,7 @@ struct mp_image *mp_image_from_av_frame(struct AVFrame *src)
+@@ -1179,9 +1182,10 @@ struct mp_image *mp_image_from_av_frame(struct AVFrame *src)
      dst->params.primaries_orig = dst->params.color.primaries;
      dst->params.transfer_orig = dst->params.color.transfer;
      dst->params.sys_orig = dst->params.repr.sys;
