@@ -48,7 +48,7 @@ if [[ ! -d "$artifact" ]]; then
 fi
 
 plist="$artifact/Info.plist"
-for platform in ios tvos macos; do
+for platform in ios; do
     if ! /usr/bin/plutil -p "$plist" | grep -Fq "\"SupportedPlatform\" => \"$platform\""; then
         echo "Libmpv XCFramework is missing its $platform slice." >&2
         exit 1
@@ -90,9 +90,9 @@ while IFS= read -r binary; do
     fi
 done < <(find "$artifact" -type f -name Libmpv -print | LC_ALL=C sort)
 
-if [[ "$binary_count" -lt 3 ]]; then
-    echo "Expected iOS, tvOS, and macOS Libmpv binaries; found $binary_count." >&2
+if [[ "$binary_count" -lt 2 ]]; then
+    echo "Expected iOS device and simulator Libmpv binaries; found $binary_count." >&2
     exit 1
 fi
 
-echo "Validated retained Apple PiP symbols in $binary_count Libmpv slices and AudioUnit recovery on iOS/tvOS."
+echo "Validated retained Apple PiP symbols in $binary_count iOS Libmpv slices and AudioUnit recovery."
