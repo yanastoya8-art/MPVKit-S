@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       run_native_build:
-        description: "Build iOS, tvOS, and arm64 macOS xcframework artifacts"
+        description: "Build iOS device and simulator xcframework artifacts"
         required: false
         default: "false"
       luna_repository:
@@ -81,33 +81,6 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             build
 
-      - name: Build Demo-tvOS for simulator
-        run: |
-          xcodebuild \
-            -project Demo/Demo-tvOS/Demo-tvOS.xcodeproj \
-            -scheme Demo-tvOS \
-            -configuration Debug \
-            -sdk appletvsimulator \
-            -destination 'generic/platform=tvOS Simulator' \
-            CODE_SIGN_IDENTITY="-" \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO \
-            build
-
-      - name: Build Demo-macOS for Apple Silicon
-        run: |
-          xcodebuild \
-            -project Demo/Demo-macOS/Demo-macOS.xcodeproj \
-            -scheme Demo-macOS \
-            -configuration Debug \
-            -destination 'generic/platform=macOS' \
-            ARCHS=arm64 \
-            ONLY_ACTIVE_ARCH=NO \
-            CODE_SIGN_IDENTITY="-" \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO \
-            build
-
   native-artifacts:
     if: github.event_name == 'workflow_dispatch' && inputs.run_native_build == 'true'
     runs-on: macos-15
@@ -129,7 +102,7 @@ jobs:
           if [[ "${{ matrix.flavor }}" == "gpl" ]]; then
             build_args+=(enable-gpl)
           fi
-          make build "${build_args[@]}" platform=ios,tvos,macos
+          make build "${build_args[@]}" platform=ios
           bash Scripts/check-built-apple-symbols.sh
           mkdir -p "artifacts/${{ matrix.flavor }}"
           cd dist/release
@@ -162,22 +135,18 @@ jobs:
             cp docs/Package.template.swift Package.swift
             wrapper_target=MPVKitSampleBuffer
             for project in \
-              Demo/Demo-iOS/Demo-iOS.xcodeproj/project.pbxproj \
-              Demo/Demo-tvOS/Demo-tvOS.xcodeproj/project.pbxproj \
-              Demo/Demo-macOS/Demo-macOS.xcodeproj/project.pbxproj; do
+              Demo/Demo-iOS/Demo-iOS.xcodeproj/project.pbxproj; do
               sed -i '' 's/productName = "MPVKit-GPL";/productName = MPVKit;/' "$project"
             done
             for source in \
-              Demo/Demo-iOS/Demo-iOS/ContentView.swift \
-              Demo/Demo-tvOS/Demo-tvOS/ContentView.swift \
-              Demo/Demo-macOS/Demo-macOS/ContentView.swift; do
+              Demo/Demo-iOS/Demo-iOS/ContentView.swift; do
               sed -i '' 's/import MPVKitSampleBufferGPL/import MPVKitSampleBuffer/' "$source"
             done
           fi
 
           swift package dump-package \
             | grep -E 'dist/release/(xcframework/)?Libmpv(-GPL)?\.xcframework(\.zip)?'
-          swift build --triple arm64-apple-macosx11.0 --target "$wrapper_target"
+          swift build --triple arm64-apple-ios14.0-simulator --target "$wrapper_target"
 
           build_demo() {
             local project="$1"
@@ -202,13 +171,6 @@ jobs:
             iphonesimulator 'generic/platform=iOS Simulator' "demo-ios-simulator-${{ matrix.flavor }}"
           build_demo Demo/Demo-iOS/Demo-iOS.xcodeproj Demo-iOS \
             iphoneos 'generic/platform=iOS' "demo-ios-device-${{ matrix.flavor }}"
-          build_demo Demo/Demo-tvOS/Demo-tvOS.xcodeproj Demo-tvOS \
-            appletvsimulator 'generic/platform=tvOS Simulator' "demo-tvos-simulator-${{ matrix.flavor }}"
-          build_demo Demo/Demo-tvOS/Demo-tvOS.xcodeproj Demo-tvOS \
-            appletvos 'generic/platform=tvOS' "demo-tvos-device-${{ matrix.flavor }}"
-          ARCHS=arm64 ONLY_ACTIVE_ARCH=YES build_demo \
-            Demo/Demo-macOS/Demo-macOS.xcodeproj Demo-macOS \
-            macosx 'generic/platform=macOS' "demo-macos-arm64-${{ matrix.flavor }}"
 
       - name: Exercise the native gpu-next PiP runtime
         if: runner.arch == 'ARM64'
