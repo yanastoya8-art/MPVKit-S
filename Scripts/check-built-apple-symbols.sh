@@ -81,10 +81,20 @@ while IFS= read -r binary; do
             exit 1
         fi
     done
-    # The guarded AudioUnit recovery hook is intentionally iOS/tvOS-only. macOS keeps its
-    # separate CoreAudio recovery path and therefore need not link ao_audiounit.m at all.
-    if [[ "$binary" != *macos-* ]] \
-       && ! grep -q ' _mpv_apple_audiounit_recovery_count$' <<<"$exported"; then
+    # The iOS player uses the guarded AudioUnit recovery hook.
+    if ! grep -q ' _mpv_apple_audiounit_recovery_count
+        echo "Missing mpv_apple_audiounit_recovery_count in built mobile slice: $binary" >&2
+        exit 1
+    fi
+done < <(find "$artifact" -type f -name Libmpv -print | LC_ALL=C sort)
+
+if [[ "$binary_count" -lt 2 ]]; then
+    echo "Expected iOS device and simulator Libmpv binaries; found $binary_count." >&2
+    exit 1
+fi
+
+echo "Validated retained Apple PiP symbols in $binary_count iOS Libmpv slices and AudioUnit recovery."
+ <<<"$exported"; then
         echo "Missing mpv_apple_audiounit_recovery_count in built mobile slice: $binary" >&2
         exit 1
     fi
