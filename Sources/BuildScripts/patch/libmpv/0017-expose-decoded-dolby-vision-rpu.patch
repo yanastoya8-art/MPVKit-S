@@ -47,7 +47,7 @@ diff --git a/video/mp_image.c b/video/mp_image.c
  #ifdef PL_HAVE_LAV_DOLBY_VISION
          const AVDOVIMetadata *metadata = (const AVDOVIMetadata *)sd->buf->data;
          const AVDOVIRpuDataHeader *header = av_dovi_get_header(metadata);
-@@ -1204,6 +1208,7 @@ struct mp_image *mp_image_from_av_frame(struct AVFrame *src)
+@@ -1204,7 +1208,8 @@ struct mp_image *mp_image_from_av_frame(struct AVFrame *src)
      }
  
      sd = av_frame_get_side_data(src, AV_FRAME_DATA_DOVI_RPU_BUFFER);
@@ -59,7 +59,7 @@ diff --git a/video/mp_image.c b/video/mp_image.c
 diff --git a/player/command.c b/player/command.c
 --- a/player/command.c
 +++ b/player/command.c
-@@ -2472,6 +2472,7 @@ static int property_imgparams(const struct mp_image_params *p, int action, void *arg)
+@@ -2472,4 +2472,5 @@ static int property_imgparams(const struct mp_image_params *p, int action, void *arg)
          {"primaries",
              SUB_PROP_STR(m_opt_choice_str(pl_csp_prim_names, p->color.primaries))},
 +        {"dolby-vision", SUB_PROP_BOOL(p->dovi_metadata)},
@@ -68,7 +68,7 @@ diff --git a/player/command.c b/player/command.c
 diff --git a/DOCS/man/input.rst b/DOCS/man/input.rst
 --- a/DOCS/man/input.rst
 +++ b/DOCS/man/input.rst
-@@ -2724,6 +2724,10 @@
+@@ -2724,7 +2724,11 @@
  ``video-params``
      Video parameters, as output by the decoder (with overrides like aspect
      etc. applied). This has a number of sub-properties:
