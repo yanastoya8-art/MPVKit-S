@@ -6,7 +6,7 @@
 
 > MPVKit is only suitable for learning `libmpv` and will not be maintained too frequently.
 
-`MPVKit` is a collection of tools to use `mpv` in `iOS`, `macOS`, `tvOS` applications.
+`MPVKit` is the iOS/iPadOS player package used by Eclipse. Its Swift Package product and release artifacts target iPhone and iPad only.
 
 It includes scripts to build `mpv` native libraries.
 
@@ -122,9 +122,7 @@ products. Renderer callbacks are delivered on the main actor.
 | `MPVGPUPlayerRenderer` | Preferred inline renderer. It uses mpv `gpu-next`, Vulkan, libplacebo, MoltenVK, and a `CAMetalLayer`; its default PiP policy first attempts the same mpv session's native GPU output. |
 | `MPVMetalSampleBufferRenderer` | Standalone sample-buffer renderer and hardened compatibility bridge. It renders into bounded IOSurface-backed buffers and feeds an `AVSampleBufferDisplayLayer`. |
 
-Inline playback is available on iOS/tvOS 14 or newer and Apple Silicon macOS
-11 or newer. Custom sample-buffer PiP is runtime-gated to iOS/tvOS 15 and
-macOS 12. The new macOS renderer is arm64-only; Intel uses the unsupported stub.
+Inline playback is available on iOS 14 or newer. Custom sample-buffer PiP is runtime-gated to iOS 15 or newer. iPadOS uses the same iOS runtime.
 MPVKit owns frame production, clocks, readiness, and safe teardown. The host
 continues to own `AVPictureInPictureController`, scene and window policy,
 remote-command policy, and application lifecycle decisions.
@@ -283,8 +281,8 @@ https://github.com/mpvkit/MPVKit.git
 
 ```bash
 make build
-# specified platforms (ios,macos,tvos,tvsimulator,isimulator,maccatalyst,xros,xrsimulator)
-make build platform=ios,macos
+# build iPhone and iPad device + simulator frameworks
+make build platform=ios
 # build GPL version
 make build enable-gpl
 # clean all build temp files and cache
@@ -297,7 +295,7 @@ make help
 
 On a fresh manifest evaluation, `dist/release` is selected automatically only
 when it contains the complete coupled libmpv, MoltenVK, libplacebo, and FFmpeg
-runtime for Eclipse's active iOS, tvOS, and macOS-harness matrix. SwiftPM's
+runtime for Eclipse's iOS device and simulator matrix. SwiftPM's
 shared manifest cache does not watch generated artifact contents, however, so
 deterministic build and archive commands should explicitly set
 `MPVKIT_LOCAL_ARTIFACTS_DIR`. Source-only manifest evaluations continue using
