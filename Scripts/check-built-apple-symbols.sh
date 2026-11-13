@@ -2,13 +2,10 @@
 
 set -euo pipefail
 
-repository_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-artifact="${1:-$repository_root/dist/release/xcframework/Libmpv.xcframework}"
+repository_root="$(cd "$(dirname "\${BASH_SOURCE[0]}")/.." && pwd)"
+artifact="\${1:-$repository_root/dist/release/xcframework/Libmpv.xcframework}"
 temporary_root=""
 
-# Symbol presence alone cannot prove that the cached native source included the latest behavioral
-# patches. When validating this checkout's own build, require the patch-set stamp and a marker from
-# the final restore-worker patch so an older cached mpv tree cannot silently produce the release.
 if [[ "$artifact" == "$repository_root/dist/release/xcframework/Libmpv.xcframework" ]]; then
     native_source="$repository_root/dist/libmpv-v0.41.0"
     patch_stamp="$native_source/.mpvkit-patch-set"
@@ -37,7 +34,7 @@ cleanup() {
 trap cleanup EXIT
 
 if [[ -f "$artifact" && "$artifact" == *.zip ]]; then
-    temporary_root="$(mktemp -d "${TMPDIR:-/tmp}/mpvkit-built-symbols.XXXXXX")"
+    temporary_root="$(mktemp -d "\${TMPDIR:-/tmp}/mpvkit-built-symbols.XXXXXX")"
     /usr/bin/unzip -q "$artifact" -d "$temporary_root"
     artifact="$(find "$temporary_root" -maxdepth 2 -type d -name 'Libmpv.xcframework' -print -quit)"
 fi
@@ -48,12 +45,10 @@ if [[ ! -d "$artifact" ]]; then
 fi
 
 plist="$artifact/Info.plist"
-for platform in ios; do
-    if ! /usr/bin/plutil -p "$plist" | grep -Fq "\"SupportedPlatform\" => \"$platform\""; then
-        echo "Libmpv XCFramework is missing its $platform slice." >&2
-        exit 1
-    fi
-done
+if ! /usr/bin/plutil -p "$plist" | grep -Fq '"SupportedPlatform" => "ios"'; then
+    echo "Libmpv XCFramework is missing its iOS slice." >&2
+    exit 1
+fi
 
 pip_symbols=(
     mpv_apple_pip_api_version
@@ -71,31 +66,18 @@ while IFS= read -r binary; do
     if [[ "$artifact" == "$repository_root/dist/release/xcframework/Libmpv.xcframework" ]] \
        && [[ "$binary" == */ios-* && "$binary" != *maccatalyst* ]] \
        && { ! grep -Fq 'requesting synchronized audio output recovery' "$binary" \
-           || ! grep -Fq 'preserving playback position during AVFoundation recovery' "$binary"; }; then
+            || ! grep -Fq 'preserving playback position during AVFoundation recovery' "$binary"; }; then
         echo "Missing synchronized AVFoundation audio recovery in iOS slice: $binary" >&2
         exit 1
     fi
-    for symbol in "${pip_symbols[@]}"; do
+    for symbol in "\${pip_symbols[@]}"; do
         if ! grep -q " _$symbol$" <<<"$exported"; then
             echo "Missing $symbol in built slice: $binary" >&2
             exit 1
         fi
     done
-    # The iOS player uses the guarded AudioUnit recovery hook.
-    if ! grep -q ' _mpv_apple_audiounit_recovery_count
-        echo "Missing mpv_apple_audiounit_recovery_count in built mobile slice: $binary" >&2
-        exit 1
-    fi
-done < <(find "$artifact" -type f -name Libmpv -print | LC_ALL=C sort)
-
-if [[ "$binary_count" -lt 2 ]]; then
-    echo "Expected iOS device and simulator Libmpv binaries; found $binary_count." >&2
-    exit 1
-fi
-
-echo "Validated retained Apple PiP symbols in $binary_count iOS Libmpv slices and AudioUnit recovery."
- <<<"$exported"; then
-        echo "Missing mpv_apple_audiounit_recovery_count in built mobile slice: $binary" >&2
+    if ! grep -q ' _mpv_apple_audiounit_recovery_count$' <<<"$exported"; then
+        echo "Missing mpv_apple_audiounit_recovery_count in built iOS slice: $binary" >&2
         exit 1
     fi
 done < <(find "$artifact" -type f -name Libmpv -print | LC_ALL=C sort)
