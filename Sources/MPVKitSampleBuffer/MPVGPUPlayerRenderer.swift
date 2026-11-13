@@ -6446,7 +6446,11 @@ public final class MPVGPUPlayerRenderer {
         cachedVideoWidth = getInt64Property("video-params/w") ?? 0
         cachedVideoHeight = getInt64Property("video-params/h") ?? 0
         cachedVideoPixelFormat = getStringProperty("video-params/pixelformat") ?? ""
-        cachedVideoHasDolbyVisionRPU = getFlagProperty("video-params/dolby-vision")
+        if getFlagProperty("video-params/dolby-vision") == true {
+            cachedVideoHasDolbyVisionRPU = true
+        } else if cachedVideoHasDolbyVisionRPU != true {
+            cachedVideoHasDolbyVisionRPU = getFlagProperty("video-params/dolby-vision")
+        }
     }
 
     private func refreshCachedFrameDeliveryDiagnostics() {
@@ -6760,9 +6764,16 @@ public final class MPVGPUPlayerRenderer {
             }
         case "video-params/dolby-vision":
             if case .flag(let detected) = value {
-                cachedVideoHasDolbyVisionRPU = detected
+                // Latch a positive RPU observation for this file. Some Dolby Vision
+                // streams carry sparse RPU side data, so a later frame without it
+                // must not erase an earlier bitstream-confirmed detection.
+                if detected {
+                    cachedVideoHasDolbyVisionRPU = true
+                } else if cachedVideoHasDolbyVisionRPU != true {
+                    cachedVideoHasDolbyVisionRPU = false
+                }
                 emitDiagnostics()
-            } else if case .unavailable = value {
+            } else if case .unavailable = value, cachedVideoHasDolbyVisionRPU != true {
                 cachedVideoHasDolbyVisionRPU = nil
                 emitDiagnostics()
             }
