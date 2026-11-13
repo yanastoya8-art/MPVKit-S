@@ -57,7 +57,7 @@ jobs:
           set -euo pipefail
           swift package dump-package >/dev/null
           swift test --filter MPVKitSampleBufferCoreTests
-          swift build --triple arm64-apple-macosx11.0 --target MPVKitSampleBufferGPL
+          swift build --triple arm64-apple-ios14.0-simulator --target MPVKitSampleBufferGPL
 
       - name: Validate local binary-artifact routing
         run: bash Scripts/check-package-artifact-routing.sh
