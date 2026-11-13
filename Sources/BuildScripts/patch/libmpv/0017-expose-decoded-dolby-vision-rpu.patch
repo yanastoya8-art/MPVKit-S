@@ -36,7 +36,7 @@ diff --git a/video/mp_image.c b/video/mp_image.c
      dst->repr.dovi = src->repr.dovi;
      // Don't overwrite peak-detected HDR metadata if available.
      float max_pq_y = dst->color.hdr.max_pq_y;
-@@ -1179,6 +1182,7 @@ static void mp_image_from_av_frame(struct mp_image *dst, AVFrame *src)
+@@ -1179,6 +1182,7 @@ struct mp_image *mp_image_from_av_frame(struct AVFrame *src)
      dst->params.primaries_orig = dst->params.color.primaries;
      dst->params.transfer_orig = dst->params.color.transfer;
      dst->params.sys_orig = dst->params.repr.sys;
@@ -47,7 +47,7 @@ diff --git a/video/mp_image.c b/video/mp_image.c
  #ifdef PL_HAVE_LAV_DOLBY_VISION
          const AVDOVIMetadata *metadata = (const AVDOVIMetadata *)sd->buf->data;
          const AVDOVIRpuDataHeader *header = av_dovi_get_header(metadata);
-@@ -1204,6 +1208,7 @@ static void mp_image_from_av_frame(struct mp_image *dst, AVFrame *src)
+@@ -1204,6 +1208,7 @@ struct mp_image *mp_image_from_av_frame(struct AVFrame *src)
      }
  
      sd = av_frame_get_side_data(src, AV_FRAME_DATA_DOVI_RPU_BUFFER);
