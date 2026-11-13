@@ -56,13 +56,10 @@ jobs:
 
       - name: Install dependencies
         run: |
-          brew install autoconf
-          brew install automake
-          brew install libtool
+          brew install autoconf automake cmake libtool nasm ninja pkg-config
           python -m pip install meson==1.4.2
-          brew install ninja
 
-      - name: Setup Xcode to support visionOS
+      - name: Set up Xcode for iOS
         run: |
           sudo xcode-select -s /Applications/Xcode_15.4.app/Contents/Developer
           xcodebuild -showsdks
