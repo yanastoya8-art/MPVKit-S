@@ -22,7 +22,7 @@ on:
 
 jobs:
   package-and-demo:
-    runs-on: macos-15
+    runs-on: macos-15-intel
     steps:
       - uses: actions/checkout@v4
 
@@ -84,7 +84,7 @@ jobs:
 
   native-artifacts:
     if: github.event_name == 'workflow_dispatch' && inputs.run_native_build == 'true'
-    runs-on: macos-15
+    runs-on: macos-15-intel
     strategy:
       fail-fast: false
       matrix:
@@ -186,7 +186,7 @@ jobs:
 
   luna-smoke:
     if: github.event_name == 'workflow_dispatch' && inputs.luna_repository != ''
-    runs-on: macos-15
+    runs-on: macos-15-intel
     steps:
       - name: Checkout MPVKit fork
         uses: actions/checkout@v4
