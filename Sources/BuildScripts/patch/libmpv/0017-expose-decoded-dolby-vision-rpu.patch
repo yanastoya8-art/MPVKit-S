@@ -13,7 +13,7 @@ diff --git a/video/mp_image.h b/video/mp_image.h
 diff --git a/video/mp_image.c b/video/mp_image.c
 --- a/video/mp_image.c
 +++ b/video/mp_image.c
-@@ -866,5 +866,6 @@ bool mp_image_params_equal(const struct mp_image_params *p1,
+@@ -869,5 +869,6 @@ bool mp_image_params_equal(const struct mp_image_params *p1,
             p1->p_w == p2->p_w && p1->p_h == p2->p_h &&
             p1->force_window == p2->force_window &&
 +           p1->dovi_metadata == p2->dovi_metadata &&
@@ -47,7 +47,7 @@ diff --git a/video/mp_image.c b/video/mp_image.c
  #ifdef PL_HAVE_LAV_DOLBY_VISION
          const AVDOVIMetadata *metadata = (const AVDOVIMetadata *)sd->buf->data;
          const AVDOVIRpuDataHeader *header = av_dovi_get_header(metadata);
-@@ -1204,7 +1208,8 @@ struct mp_image *mp_image_from_av_frame(struct AVFrame *src)
+@@ -1203,7 +1207,8 @@ struct mp_image *mp_image_from_av_frame(struct AVFrame *src)
      }
  
      sd = av_frame_get_side_data(src, AV_FRAME_DATA_DOVI_RPU_BUFFER);
@@ -59,7 +59,7 @@ diff --git a/video/mp_image.c b/video/mp_image.c
 diff --git a/player/command.c b/player/command.c
 --- a/player/command.c
 +++ b/player/command.c
-@@ -2472,4 +2472,5 @@ static int property_imgparams(const struct mp_image_params *p, int action, void *arg)
+@@ -2473,4 +2473,5 @@ static int property_imgparams(const struct mp_image_params *p, int action, void *arg)
          {"primaries",
              SUB_PROP_STR(m_opt_choice_str(pl_csp_prim_names, p->color.primaries))},
 +        {"dolby-vision", SUB_PROP_BOOL(p->dovi_metadata)},
