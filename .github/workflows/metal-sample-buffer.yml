@@ -173,7 +173,8 @@ jobs:
             iphoneos 'generic/platform=iOS' "demo-ios-device-${{ matrix.flavor }}"
 
       - name: Confirm iOS-only package excludes the macOS runtime harness
-        run: grep -Fq 'mpvkitNativeRuntimeHarnessTargets: [Target] = []' Package.swift
+        run: |
+          grep -Fq 'mpvkitNativeRuntimeHarnessTargets: [Target] = []' Package.swift
 
       - name: Upload sample-buffer artifacts
         uses: actions/upload-artifact@v4
