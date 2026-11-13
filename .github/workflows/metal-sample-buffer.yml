@@ -35,6 +35,8 @@ jobs:
       - name: Static acceptance checks
         run: |
           set -euo pipefail
+          bash -n Scripts/check-built-apple-symbols.sh
+          bash -n Scripts/check-package-artifact-routing.sh
           test -d Sources/MPVKitSampleBuffer
           test -d Sources/MPVKitSampleBufferGPL
           ! grep -R -n -E 'OpenGL|GLK|EAGL|CVOpenGLESTexture' Sources/MPVKitSampleBuffer Sources/MPVKitSampleBufferGPL
