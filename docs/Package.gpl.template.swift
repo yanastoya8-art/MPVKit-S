@@ -203,9 +203,6 @@ private func mpvkitMoltenVKProvenanceMatchesSelectedArtifact(
     let requiredIdentifiers: Set<String> = [
         "ios-arm64",
         "ios-arm64_x86_64-simulator",
-        "macos-arm64_x86_64",
-        "tvos-arm64_arm64e",
-        "tvos-arm64_x86_64-simulator",
     ]
     var actualHashes: [String: String] = [:]
     var actualMatrix: [String: Set<String>] = [:]
@@ -268,28 +265,11 @@ private func mpvkitBinaryTarget(
     return .binaryTarget(name: name, url: url, checksum: checksum)
 }
 
-private let mpvkitNativeRuntimeHarnessTargets: [Target] = {
-    guard mpvkitLocalArtifactsRoot != nil else { return [] }
-    return [
-        .executableTarget(
-            name: "NativeApplePiPRuntimeHarness",
-            dependencies: ["Libmpv-GPL", "_MPVKit-GPL"],
-            path: "Tests/NativeApplePiPRuntimeHarness",
-            linkerSettings: [
-                .linkedFramework("AppKit"),
-                .linkedFramework("AVFoundation"),
-                .linkedFramework("CoreAudio"),
-                .linkedFramework("IOSurface"),
-                .linkedFramework("Metal"),
-                .linkedFramework("QuartzCore"),
-            ]
-        ),
-    ]
-}()
+private let mpvkitNativeRuntimeHarnessTargets: [Target] = []
 
 let package = Package(
     name: "MPVKit",
-    platforms: [.macOS(.v11), .iOS(.v14), .tvOS(.v14), .visionOS(.v1)],
+    platforms: [.iOS(.v14)],
     products: [
         .library(
             name: "MPVKit-GPL",
@@ -312,7 +292,7 @@ let package = Package(
                 .linkedFramework("CoreVideo"),
                 .linkedFramework("Metal"),
                 .linkedFramework("QuartzCore"),
-                .linkedFramework("UIKit", .when(platforms: [.iOS, .tvOS])),
+                .linkedFramework("UIKit", .when(platforms: [.iOS])),
             ]
         ),
         .target(
