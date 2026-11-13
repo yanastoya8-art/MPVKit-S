@@ -63,14 +63,21 @@ private func mpvkitXCFrameworkSupportsActiveEclipseRuntimeMatrix(at artifact: UR
         }
     }
 
-    // Eclipse is an iPhone/iPad app. Validate only the iOS device and Apple-silicon
-    // simulator slices so the local build cannot accidentally select an incomplete
-    // multi-platform XCFramework. iPadOS uses the iOS runtime.
+    // Eclipse's active private runtime matrix is iOS and tvOS (device and simulator), plus
+    // macOS for MPVKit's local native harnesses. iPadOS shares the iOS slices. Catalyst and
+    // visionOS remain declared package platforms, but are not active Eclipse release products.
     return containsSlice(platform: "ios", architectures: ["arm64"])
         && containsSlice(
             platform: "ios",
             variant: "simulator",
-            architectures: ["arm64"]
+            architectures: ["arm64", "x86_64"]
+        )
+        && containsSlice(platform: "macos", architectures: ["arm64", "x86_64"])
+        && containsSlice(platform: "tvos", architectures: ["arm64"])
+        && containsSlice(
+            platform: "tvos",
+            variant: "simulator",
+            architectures: ["arm64", "x86_64"]
         )
 }
 
@@ -258,8 +265,6 @@ private func mpvkitBinaryTarget(
     return .binaryTarget(name: name, url: url, checksum: checksum)
 }
 
-// Eclipse ships only on iPhone and iPad. Keep the macOS-only native runtime
-// harness out of the app package graph.
 private let mpvkitNativeRuntimeHarnessTargets: [Target] = []
 
 let package = Package(
@@ -454,38 +459,38 @@ let package = Package(
 
         mpvkitBinaryTarget(
             name: "Libavcodec-GPL",
-            url: "https://github.com/Soupy-dev/MPVKit/releases/download/0.41.1/Libavcodec-GPL.xcframework.zip",
-            checksum: "575cf30be0e0310263ad0dda81706a72c204b79f37d250d26c741b7278cfada3"
+            url: "https://github.com/Soupy-dev/MPVKit/releases/download/0.41.0/Libavcodec-GPL.xcframework.zip",
+            checksum: "25b9943d545e08b2d05c8aae0a5bc46edec0939933876b4944b8797f07990373"
         ),
         mpvkitBinaryTarget(
             name: "Libavdevice-GPL",
-            url: "https://github.com/Soupy-dev/MPVKit/releases/download/0.41.1/Libavdevice-GPL.xcframework.zip",
-            checksum: "b69e5d460566bdbd81ae02c87f618417c9d488439e4b8ba1b2f529c23272d6e4"
+            url: "https://github.com/Soupy-dev/MPVKit/releases/download/0.41.0/Libavdevice-GPL.xcframework.zip",
+            checksum: "7a18405c5d93bfcb38f5fea61db7859a54d26bc56ebdf47c7672e5b9f75c0914"
         ),
         mpvkitBinaryTarget(
             name: "Libavformat-GPL",
-            url: "https://github.com/Soupy-dev/MPVKit/releases/download/0.41.1/Libavformat-GPL.xcframework.zip",
-            checksum: "fcd5137903856939f53aee5d12ab674c604faf647dc85531d999aa83bbb205ee"
+            url: "https://github.com/Soupy-dev/MPVKit/releases/download/0.41.0/Libavformat-GPL.xcframework.zip",
+            checksum: "c3bc80dd64b6da5d9d23e091f603cb48b34f158d688783fb6a7ea407674d6f79"
         ),
         mpvkitBinaryTarget(
             name: "Libavfilter-GPL",
-            url: "https://github.com/Soupy-dev/MPVKit/releases/download/0.41.1/Libavfilter-GPL.xcframework.zip",
-            checksum: "0d92788240fc9d0d22e7e21ca9a96c52b911bd3bacd8a9cf1b03f9673aa4ec37"
+            url: "https://github.com/Soupy-dev/MPVKit/releases/download/0.41.0/Libavfilter-GPL.xcframework.zip",
+            checksum: "1d17b9fd4aaceadedf0c23d2f6f1ebf0360cc32b8e212c22f84774b937ba2e4f"
         ),
         mpvkitBinaryTarget(
             name: "Libavutil-GPL",
-            url: "https://github.com/Soupy-dev/MPVKit/releases/download/0.41.1/Libavutil-GPL.xcframework.zip",
-            checksum: "eb6760c39fda2a985258dabc3ee7497dafc5d79b0949b91de79aee794536554d"
+            url: "https://github.com/Soupy-dev/MPVKit/releases/download/0.41.0/Libavutil-GPL.xcframework.zip",
+            checksum: "8c0555b75f8792c38c6ca8a77601b7d955d4bf03779176d332e0558d512a2205"
         ),
         mpvkitBinaryTarget(
             name: "Libswresample-GPL",
-            url: "https://github.com/Soupy-dev/MPVKit/releases/download/0.41.1/Libswresample-GPL.xcframework.zip",
-            checksum: "81236939793646109a321750c4f450e64d74dd81c3ba8b1a027ba8cd6d0ac0f3"
+            url: "https://github.com/Soupy-dev/MPVKit/releases/download/0.41.0/Libswresample-GPL.xcframework.zip",
+            checksum: "802f4fddcfd9eab55c677ba4b716e97cfb0d11e77fdbd09471014f8c57079f75"
         ),
         mpvkitBinaryTarget(
             name: "Libswscale-GPL",
-            url: "https://github.com/Soupy-dev/MPVKit/releases/download/0.41.1/Libswscale-GPL.xcframework.zip",
-            checksum: "e644446776c64b682220bf1fca90fc0fb875cf1b139a5db78d2882c8ff10fb7b"
+            url: "https://github.com/Soupy-dev/MPVKit/releases/download/0.41.0/Libswscale-GPL.xcframework.zip",
+            checksum: "705d592ee4ff225a05b9fff83328077924e4b401c7354c7ec6a36bdac6946833"
         ),
 
         mpvkitBinaryTarget(
@@ -502,14 +507,9 @@ let package = Package(
 
         mpvkitBinaryTarget(
             name: "Libmpv-GPL",
-            url: "https://github.com/Soupy-dev/MPVKit/releases/download/0.41.1/Libmpv-GPL.xcframework.zip",
-            checksum: "1f3bf91e3b16ca637e14b465aea91187c5ffbf98c24bf1a4f9736e66677f231b"
+            url: "https://github.com/Soupy-dev/MPVKit/releases/download/0.41.0/Libmpv-GPL.xcframework.zip",
+            checksum: "a2fbfe2619064a2adbd309a0add082c02004a782d1768087f6f38e962579a280"
         ),
         //AUTO_GENERATE_TARGETS_END//
-        .testTarget(
-            name: "MPVKitSampleBufferCoreTests",
-            dependencies: ["MPVKitSampleBufferCore"],
-            path: "Tests/MPVKitSampleBufferCoreTests"
-        ),
     ]
 )
