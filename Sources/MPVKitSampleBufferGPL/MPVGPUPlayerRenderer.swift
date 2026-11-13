@@ -227,6 +227,8 @@ public struct MPVGPUPlayerRendererDiagnostics: Equatable, Sendable {
     public let delayedVideoFrameCount: Int
     /// Active video codec name (`video-codec`); empty when no video is loaded.
     public let videoCodec: String
+    /// True only when the decoded video frame carries Dolby Vision metadata/RPU; nil until inspected.
+    public let videoHasDolbyVisionRPU: Bool?
     /// Decoded video frame width/height in pixels (`video-params/w`/`h`); 0 when no video.
     public let videoWidth: Int
     public let videoHeight: Int
@@ -2737,6 +2739,7 @@ public final class MPVGPUPlayerRenderer {
     private var cachedSeeking = false
     private var cachedContainerFramesPerSecond: Double = 0
     private var cachedVideoCodec = ""
+    private var cachedVideoHasDolbyVisionRPU: Bool?
     private var cachedVideoWidth: Int64 = 0
     private var cachedVideoHeight: Int64 = 0
     private var cachedVideoTransferFunction = ""
@@ -5014,6 +5017,7 @@ public final class MPVGPUPlayerRenderer {
             droppedVideoFrameCount: Int(clamping: cachedDroppedVideoFrameCount),
             delayedVideoFrameCount: Int(clamping: cachedDelayedVideoFrameCount),
             videoCodec: cachedVideoCodec,
+            videoHasDolbyVisionRPU: cachedVideoHasDolbyVisionRPU,
             videoWidth: Int(cachedVideoWidth),
             videoHeight: Int(cachedVideoHeight),
             videoTransferFunction: cachedVideoTransferFunction,
@@ -6415,6 +6419,7 @@ public final class MPVGPUPlayerRenderer {
         cachedDelayedVideoFrameCount = 0
         cachedSeeking = false
         cachedVideoCodec = ""
+        cachedVideoHasDolbyVisionRPU = nil
         cachedVideoWidth = 0
         cachedVideoHeight = 0
         cachedVideoTransferFunction = ""
@@ -6441,6 +6446,7 @@ public final class MPVGPUPlayerRenderer {
         cachedVideoWidth = getInt64Property("video-params/w") ?? 0
         cachedVideoHeight = getInt64Property("video-params/h") ?? 0
         cachedVideoPixelFormat = getStringProperty("video-params/pixelformat") ?? ""
+        cachedVideoHasDolbyVisionRPU = getFlagProperty("video-params/dolby-vision")
     }
 
     private func refreshCachedFrameDeliveryDiagnostics() {
@@ -6485,6 +6491,7 @@ public final class MPVGPUPlayerRenderer {
             ("sid", MPV_FORMAT_NONE),
             ("aid", MPV_FORMAT_NONE),
             ("video-codec", MPV_FORMAT_STRING),
+            ("video-params/dolby-vision", MPV_FORMAT_FLAG),
             ("hwdec-current", MPV_FORMAT_STRING)
         ]
         for (name, format) in properties {
@@ -6750,6 +6757,14 @@ public final class MPVGPUPlayerRenderer {
                 cachedVideoPixelFormat = pixelFormat
             } else if case .unavailable = value {
                 cachedVideoPixelFormat = ""
+            }
+        case "video-params/dolby-vision":
+            if case .flag(let detected) = value {
+                cachedVideoHasDolbyVisionRPU = detected
+                emitDiagnostics()
+            } else if case .unavailable = value {
+                cachedVideoHasDolbyVisionRPU = nil
+                emitDiagnostics()
             }
         case "hwdec-current":
             // `hwdec-current` becomes a VideoToolbox value only after decoded output is available,
@@ -7233,6 +7248,7 @@ public final class MPVGPUPlayerRenderer {
             droppedVideoFrameCount: 0,
             delayedVideoFrameCount: 0,
             videoCodec: "",
+            videoHasDolbyVisionRPU: nil,
             videoWidth: 0,
             videoHeight: 0,
             videoTransferFunction: "",
