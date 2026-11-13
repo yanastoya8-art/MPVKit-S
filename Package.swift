@@ -63,21 +63,14 @@ private func mpvkitXCFrameworkSupportsActiveEclipseRuntimeMatrix(at artifact: UR
         }
     }
 
-    // Eclipse's active private runtime matrix is iOS and tvOS (device and simulator), plus
-    // macOS for MPVKit's local native harnesses. iPadOS shares the iOS slices. Catalyst and
-    // visionOS remain declared package platforms, but are not active Eclipse release products.
+    // Eclipse is an iPhone/iPad app. Validate only the iOS device and Apple-silicon
+    // simulator slices so the local build cannot accidentally select an incomplete
+    // multi-platform XCFramework. iPadOS uses the iOS runtime.
     return containsSlice(platform: "ios", architectures: ["arm64"])
         && containsSlice(
             platform: "ios",
             variant: "simulator",
-            architectures: ["arm64", "x86_64"]
-        )
-        && containsSlice(platform: "macos", architectures: ["arm64", "x86_64"])
-        && containsSlice(platform: "tvos", architectures: ["arm64"])
-        && containsSlice(
-            platform: "tvos",
-            variant: "simulator",
-            architectures: ["arm64", "x86_64"]
+            architectures: ["arm64"]
         )
 }
 
@@ -268,28 +261,13 @@ private func mpvkitBinaryTarget(
     return .binaryTarget(name: name, url: url, checksum: checksum)
 }
 
-private let mpvkitNativeRuntimeHarnessTargets: [Target] = {
-    guard mpvkitLocalArtifactsRoot != nil else { return [] }
-    return [
-        .executableTarget(
-            name: "NativeApplePiPRuntimeHarness",
-            dependencies: ["Libmpv-GPL", "_MPVKit-GPL"],
-            path: "Tests/NativeApplePiPRuntimeHarness",
-            linkerSettings: [
-                .linkedFramework("AppKit"),
-                .linkedFramework("AVFoundation"),
-                .linkedFramework("CoreAudio"),
-                .linkedFramework("IOSurface"),
-                .linkedFramework("Metal"),
-                .linkedFramework("QuartzCore"),
-            ]
-        ),
-    ]
-}()
+// Eclipse ships only on iPhone and iPad. Keep the macOS-only native runtime
+// harness out of the app package graph.
+private let mpvkitNativeRuntimeHarnessTargets: [Target] = []
 
 let package = Package(
     name: "MPVKit",
-    platforms: [.macOS(.v11), .iOS(.v14), .tvOS(.v14), .visionOS(.v1)],
+    platforms: [.iOS(.v14)],
     products: [
         .library(
             name: "MPVKit-GPL",
