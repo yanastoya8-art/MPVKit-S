@@ -196,9 +196,6 @@ private func mpvkitMoltenVKProvenanceMatchesSelectedArtifact(
     let requiredIdentifiers: Set<String> = [
         "ios-arm64",
         "ios-arm64_x86_64-simulator",
-        "macos-arm64_x86_64",
-        "tvos-arm64_arm64e",
-        "tvos-arm64_x86_64-simulator",
     ]
     var actualHashes: [String: String] = [:]
     var actualMatrix: [String: Set<String>] = [:]
@@ -290,7 +287,7 @@ let package = Package(
                 .linkedFramework("CoreVideo"),
                 .linkedFramework("Metal"),
                 .linkedFramework("QuartzCore"),
-                .linkedFramework("UIKit", .when(platforms: [.iOS, .tvOS])),
+                .linkedFramework("UIKit", .when(platforms: [.iOS])),
             ]
         ),
         .target(
