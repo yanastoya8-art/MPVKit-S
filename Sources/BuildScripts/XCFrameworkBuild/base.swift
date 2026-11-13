@@ -111,7 +111,7 @@ class BaseBuild {
         var seen = Set<String>()
         return paths.filter { seen.insert($0).inserted }.joined(separator: ":")
     }()
-    static var platforms = PlatformType.allCases
+    static var platforms: [PlatformType] = [.ios, .isimulator]
     static var options = ArgumentOptions()
     static let splitPlatformGroups = [
         PlatformType.macos.rawValue: [PlatformType.macos, PlatformType.maccatalyst],
