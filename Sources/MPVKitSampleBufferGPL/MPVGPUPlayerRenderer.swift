@@ -227,7 +227,7 @@ public struct MPVGPUPlayerRendererDiagnostics: Equatable, Sendable {
     public let delayedVideoFrameCount: Int
     /// Active video codec name (`video-codec`); empty when no video is loaded.
     public let videoCodec: String
-    /// True only when the decoded video frame carries Dolby Vision metadata/RPU; nil until inspected.
+    /// True once any decoded frame in the current file carries Dolby Vision metadata/RPU; nil until inspected.
     public let videoHasDolbyVisionRPU: Bool?
     /// Decoded video frame width/height in pixels (`video-params/w`/`h`); 0 when no video.
     public let videoWidth: Int
