@@ -65,3 +65,18 @@ diff --git a/player/command.c b/player/command.c
 +        {"dolby-vision", SUB_PROP_BOOL(p->dovi_metadata)},
          {"gamma",
              SUB_PROP_STR(m_opt_choice_str(pl_csp_trc_names, p->color.transfer))},
+diff --git a/DOCS/man/input.rst b/DOCS/man/input.rst
+--- a/DOCS/man/input.rst
++++ b/DOCS/man/input.rst
+@@ -2724,6 +2724,10 @@
+ ``video-params``
+     Video parameters, as output by the decoder (with overrides like aspect
+     etc. applied). This has a number of sub-properties:
++
++    ``video-params/dolby-vision``
++        Whether decoded video frame side data contains Dolby Vision metadata
++        or an RPU. This is detected from decoded frames, not container tags.
+ 
+     ``video-params/pixelformat``
+         The pixel format as string. This uses the same names as used in other
+         places of mpv.
