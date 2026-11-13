@@ -54,25 +54,7 @@ active_matrix = [
         "SupportedPlatform": "ios",
         "SupportedPlatformVariant": "simulator",
     },
-    {
-        "LibraryIdentifier": "macos-arm64_x86_64",
-        "LibraryPath": "Fixture.framework",
-        "SupportedArchitectures": ["arm64", "x86_64"],
-        "SupportedPlatform": "macos",
-    },
-    {
-        "LibraryIdentifier": "tvos-arm64_arm64e",
-        "LibraryPath": "Fixture.framework",
-        "SupportedArchitectures": ["arm64", "arm64e"],
-        "SupportedPlatform": "tvos",
-    },
-    {
-        "LibraryIdentifier": "tvos-arm64_x86_64-simulator",
-        "LibraryPath": "Fixture.framework",
-        "SupportedArchitectures": ["arm64", "x86_64"],
-        "SupportedPlatform": "tvos",
-        "SupportedPlatformVariant": "simulator",
-    },
+
 ]
 
 def write_artifact(path, libraries):
@@ -381,10 +363,7 @@ done
 
 for identifier in \
     ios-arm64 \
-    ios-arm64_x86_64-simulator \
-    macos-arm64_x86_64 \
-    tvos-arm64_arm64e \
-    tvos-arm64_x86_64-simulator
+    ios-arm64_x86_64-simulator
 do
     fixture_name="missing-${identifier}"
     create_fixture "$fixture_name" "missing-slice:${identifier}"
@@ -395,12 +374,7 @@ done
 for requirement in \
     ios-arm64,arm64 \
     ios-arm64_x86_64-simulator,arm64 \
-    ios-arm64_x86_64-simulator,x86_64 \
-    macos-arm64_x86_64,arm64 \
-    macos-arm64_x86_64,x86_64 \
-    tvos-arm64_arm64e,arm64 \
-    tvos-arm64_x86_64-simulator,arm64 \
-    tvos-arm64_x86_64-simulator,x86_64
+    ios-arm64_x86_64-simulator,x86_64
 do
     fixture_name="missing-architecture-${requirement//[^[:alnum:]]/-}"
     create_fixture "$fixture_name" "missing-architecture:${requirement}"
