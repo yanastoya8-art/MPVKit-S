@@ -95,7 +95,7 @@ jobs:
           brew install autoconf automake cmake libtool nasm ninja pkg-config
           python -m pip install meson==1.4.2
 
-      - name: Build ${{ matrix.flavor }} Apple-platform artifacts
+      - name: Build ${{ matrix.flavor }} iOS artifacts
         run: |
           build_args=()
           if [[ "${{ matrix.flavor }}" == "gpl" ]]; then
@@ -170,17 +170,8 @@ jobs:
           build_demo Demo/Demo-iOS/Demo-iOS.xcodeproj Demo-iOS \
             iphoneos 'generic/platform=iOS' "demo-ios-device-${{ matrix.flavor }}"
 
-      - name: Exercise the native gpu-next PiP runtime
-        if: runner.arch == 'ARM64'
-        env:
-          MPVKIT_LOCAL_ARTIFACTS_DIR: ${{ github.workspace }}/dist/release
-          MPVKIT_NATIVE_RUNTIME_REQUIRED: "1"
-        run: bash Scripts/check-apple-pip-runtime.sh
-
-      - name: Report unavailable native runtime gate
-        if: runner.arch != 'ARM64'
-        run: |
-          echo "::notice::Native gpu-next PiP runtime validation requires an Apple Silicon runner; artifact, ABI, wrapper, and demo checks still ran."
+      - name: Confirm iOS-only package excludes the macOS runtime harness
+        run: grep -Fq 'mpvkitNativeRuntimeHarnessTargets: [Target] = []' Package.swift
 
       - name: Upload sample-buffer artifacts
         uses: actions/upload-artifact@v4
