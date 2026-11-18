@@ -1266,7 +1266,14 @@ enum PlatformType: String, CaseIterable {
     }
 
     func xcrunFind(tool: String) -> String {
-        try! Utility.launch(path: "/usr/bin/xcrun", arguments: ["--sdk", sdk.lowercased(), "--find", tool], isOutput: true)
+        // SDK path queries are xcrun options, not tool names. Passing
+        // --show-sdk-path after --find makes xcrun treat it as a binary to
+        // locate and returns no sysroot, which corrupts every simulator
+        // compiler invocation (-isysroot followed by -target).
+        let arguments = tool.hasPrefix("--")
+            ? ["--sdk", sdk.lowercased(), tool]
+            : ["--sdk", sdk.lowercased(), "--find", tool]
+        return try! Utility.launch(path: "/usr/bin/xcrun", arguments: arguments, isOutput: true)
     }
 
     func pkgConfigPath(arch: ArchType) -> String {
